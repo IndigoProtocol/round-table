@@ -5,7 +5,7 @@ import { collectTransactionOutputs, decodeASCII, getAssetName, getBalanceByUTxOs
 import type { Value, RecipientRegistry } from '../cardano/query-api'
 import { getResult, isAddressNetworkCorrect, newRecipient, toAddressString, toHex, toIter, useCardanoMultiplatformLib, verifySignature } from '../cardano/multiplatform-lib'
 import type { Cardano, Recipient } from '../cardano/multiplatform-lib'
-import { type Certificate, type Transaction, type TransactionHash, type TransactionInput, type Vkeywitness, type SingleInputBuilder, type InputBuilderResult, type SingleCertificateBuilder, type CertificateBuilderResult, type TransactionWitnessSet, type TransactionOutputList, type TransactionOutput as CMLTransactionOutput, type SingleWithdrawalBuilder, type WithdrawalBuilderResult, Metadata } from '@dcspark/cardano-multiplatform-lib-browser'
+import { type Certificate, type TransactionHash, type TransactionInput, type Vkeywitness, type SingleInputBuilder, type InputBuilderResult, type SingleCertificateBuilder, type CertificateBuilderResult, type TransactionWitnessSet, type TransactionOutputList, type TransactionOutput as CMLTransactionOutput, type SingleWithdrawalBuilder, type WithdrawalBuilderResult, Metadata, Transaction } from '@dcspark/cardano-multiplatform-lib-browser'
 import { ShareIcon, ArrowUpTrayIcon, PlusIcon, XMarkIcon, XCircleIcon, MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon, PencilIcon, WalletIcon, HeartIcon } from '@heroicons/react/24/solid'
 import Link from 'next/link'
 import { ConfigContext, donationAddress, isMainnet } from '../cardano/config'
@@ -223,7 +223,7 @@ const SignTxButton: FC<{
         const { TransactionWitnessSetBuilder } = cardano.lib
         const builder = TransactionWitnessSetBuilder.new()
         vkeywitnesses.forEach((vkeywitness) => builder.add_vkey(vkeywitness))
-        onSuccess(toHex(builder.build().to_cbor_bytes()))
+        onSuccess(toHex(builder.build().to_canonical_cbor_bytes()))
         notify('success', 'Signed successfully')
       })
       .catch((error) => {
@@ -334,7 +334,7 @@ const CIP30SignTxButton: FC<{
           return
         }
         return walletAPI
-          .signTx(toHex(transaction.to_cbor_bytes()), partialSign)
+          .signTx(toHex(transaction.to_canonical_cbor_bytes()), partialSign)
           .then(sign)
       })
       .catch((reason: Error | TxSignError) => {
@@ -580,6 +580,7 @@ const TransactionLifetime: FC<{
   startSlot?: number
   expirySlot?: number
 }> = ({ startSlot, expirySlot }) => {
+  console.log('expirySlot', expirySlot)
   const currentSlot = useLiveSlot()
 
   if (!startSlot && !expirySlot) return null
@@ -665,10 +666,8 @@ const TransactionViewer: FC<{
   }, [cardano, transaction, signatureMap, signerRegistry])
   const txMessage = useMemo(() => cardano.getTxMessage(transaction), [cardano, transaction])
   const addSignatures = useCallback((witnessSetHex: string) => {
-    console.log('addSignatures', witnessSetHex)
     const result = getResult(() => {
       const bytes = Buffer.from(witnessSetHex, 'hex')
-      console.log(bytes)
       return cardano.lib.TransactionWitnessSet.from_cbor_bytes(bytes)
     })
 
@@ -699,10 +698,10 @@ const TransactionViewer: FC<{
   }, [cardano, txInputs, txInputsRegistry, txRequiredSigners, setRequiredPaymentKeys])
   const txOutputs: Recipient[] = useMemo(() => getRecipientsFromCMLTransactionOutputs(txBody.outputs()), [txBody])
   const startSlot = useMemo(() => {
-    return Number(txBody.validity_interval_start())
+    return txBody.validity_interval_start() ? Number(txBody.validity_interval_start()) : undefined
   }, [txBody])
   const expirySlot = useMemo(() => {
-    return Number(txBody.ttl())
+    return txBody.ttl() ? Number(txBody.ttl()) : undefined
   }, [txBody])
   const verifyingData: VerifyingData = useMemo(() => ({
     signatures: signatureMap,

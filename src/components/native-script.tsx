@@ -58,6 +58,7 @@ const TimelockViewer: FC<{
   isValid: boolean
 }> = ({ slot, isValid }) => {
   const [config, _] = useContext(ConfigContext)
+  console.log(slot)
   return (
     <div className={['flex', 'space-x-1', 'items-center', isValid ? 'text-green-500' : 'text-red-500'].join(' ')}>
       <span>{slot}</span>

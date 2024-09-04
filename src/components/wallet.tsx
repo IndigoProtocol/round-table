@@ -198,8 +198,8 @@ const AddressButton: FC<{
   onClick?: (address: string) => void
 }> = ({ address, className, onClick }) => {
   const cardano = useCardanoMultiplatformLib()
-  const payment = useMemo(() => cardano?.parseAddress(address).payment_cred()?.to_keyhash()?.to_bytes(), [cardano, address])
-  const staking = useMemo(() => cardano?.parseAddress(address).staking_cred()?.to_keyhash()?.to_bytes(), [cardano, address])
+  const payment = useMemo(() => cardano?.parseAddress(address).payment_cred()?.as_pub_key()?.to_raw_bytes(), [cardano, address])
+  const staking = useMemo(() => cardano?.parseAddress(address).staking_cred()?.as_pub_key()?.to_raw_bytes(), [cardano, address])
   const click = useCallback(() => onClick && onClick(address), [address, onClick])
   return (
     <button onClick={click} className={className}>
@@ -275,11 +275,11 @@ const AddAddress: FC<{
       notify('error', 'Wrong network')
       return
     }
-    if (!addressObject.as_base()?.payment_cred().to_keyhash()) {
+    if (!addressObject.payment_cred()?.as_pub_key()) {
       notify('error', 'No key hash of payment')
       return
     }
-    if (!addressObject.as_base()?.stake_cred().to_keyhash()) {
+    if (!addressObject.staking_cred()?.as_pub_key()) {
       notify('error', 'No key hash of staking')
       return
     }

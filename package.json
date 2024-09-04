@@ -13,7 +13,7 @@
   "dependencies": {
     "@apollo/client": "^3.7.2",
     "@cardano-graphql/client-ts": "^7.0.2",
-    "@dcspark/cardano-multiplatform-lib-browser": "^3.1.2",
+    "@dcspark/cardano-multiplatform-lib-browser": "^6.0.0",
     "@heroicons/react": "^2.0.13",
     "bip39": "^3.0.4",
     "buffer": "^6.0.3",

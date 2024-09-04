@@ -39,8 +39,8 @@ const AddressTable: FC<{
           <td className='px-4 py-2 items-center'>
             <AddressableContent content={address} scanType='address' />
           </td>
-          <td className='px-4 py-2'><DerivationPath keyHash={cardano?.parseAddress(address).payment_cred()?.to_keyhash()?.to_bytes()} /></td>
-          <td className='px-4 py-2'><DerivationPath keyHash={cardano?.parseAddress(address).staking_cred()?.to_keyhash()?.to_bytes()} /></td>
+          <td className='px-4 py-2'><DerivationPath keyHash={cardano?.parseAddress(address).payment_cred()?.as_pub_key()?.to_raw_bytes()} /></td>
+          <td className='px-4 py-2'><DerivationPath keyHash={cardano?.parseAddress(address).staking_cred()?.as_pub_key()?.to_raw_bytes()} /></td>
         </tr>)}
       </tbody>
     </table>

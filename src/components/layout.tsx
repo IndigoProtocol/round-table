@@ -484,7 +484,7 @@ const ConfigModalButton: FC<{
   return (
     <>
       <button onClick={openModal} className={className}>{children}</button>
-      {modal && <Modal className='w-80' onBackgroundClick={closeModal}>
+      {modal && <Modal className='w-160' onBackgroundClick={closeModal}>
         <div className='bg-white rounded overflow-hidden text-sm p-4 space-y-2'>
           <div className='flex justify-between items-center'>
             <div className='flex bg-sky-700 text-white divide-x border border-sky-700 rounded overflow-hidden'>

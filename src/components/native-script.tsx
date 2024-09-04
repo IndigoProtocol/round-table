@@ -127,7 +127,7 @@ const NativeScriptViewer: FC<{
 
   script = nativeScript.as_script_pubkey()
   if (script) {
-    const keyHashHex = script.addr_keyhash().to_hex()
+    const keyHashHex = script.ed25519_key_hash().to_hex()
     const signature = verifyingData?.signatures?.get(keyHashHex)
     const signatureHex = cardano?.buildSignatureSetHex(signature)
     return (
@@ -135,9 +135,9 @@ const NativeScriptViewer: FC<{
     )
   }
 
-  script = nativeScript.as_timelock_expiry()
+  script = nativeScript.as_script_invalid_hereafter()
   if (script) {
-    const slot = parseInt(script.slot().to_str())
+    const slot = Number(script.after())
     return (
       <div className='flex items-center space-x-1'>
         <ExpiryBadge />
@@ -146,9 +146,9 @@ const NativeScriptViewer: FC<{
     )
   }
 
-  script = nativeScript.as_timelock_start()
+  script = nativeScript.as_script_invalid_before()
   if (script) {
-    const slot = parseInt(script.slot().to_str())
+    const slot = Number(script.before())
     return (
       <div className='flex items-center space-x-1'>
         <StartBadge />
@@ -202,7 +202,7 @@ const NativeScriptViewer: FC<{
   script = nativeScript.as_script_n_of_k()
   if (script) return (
     <div className={className}>
-      <header className={headerClassName}>Require least {script.n()}</header>
+      <header className={headerClassName}>Require least {Number(script.n())}</header>
       <ul className={ulClassName}>
         {Array.from(toIter(script.native_scripts())).map((nativeScript, index) =>
           <li key={index} className={liClassName}>
